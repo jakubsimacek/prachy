@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h2= title
+
+  .form
+    form(action="/prachy/mesic/novy",method="post")
+      .field
+        span Rok
+        input(type="text",name="year")
+      .field
+        span Měsíc
+        input(type="text",name="month")
+      .field
+        span Poznámky
+        input(type="text",name="notes")
+      .button
+        input(type="submit",name="create",value="Vytvořit")
+

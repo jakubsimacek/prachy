@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2= title
+
+  a(href="/prachy/mesic/novy")
+    input(type="submit",name="pridat_mesic",value="Pridat")
+
+  .form
+    form(action="/prachy/tydny",method="post")
+      table.table
+        thead
+          tr
+            td Měsíc
+            td Příjmy
+            td Výdaje
+            td Stav
+            td Poznámky
+        each month in months
+          tr
+            td
+              a(href="/prachy/month/" + month._id)= month._id
+            td= month.sumIncomes
+            td= month.sumExpenses 
+            td= month.state 
+            td= month.notes 
+

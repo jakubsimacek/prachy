@@ -1,0 +1,59 @@
+extends layout
+
+block content
+  h2= title
+
+  .form
+    form(action="/prachy/tydny/${_id}",method="post")
+      table.table
+        thead
+          tr
+            td Id
+            td Den
+            td Částka
+            td Typ
+            td Kategorie
+            td Poznámky
+        each income in incomes
+          tr
+            td
+              a(href="/prachy/month/" + month._id)= month._id
+            td= income.day
+            td= income.amount 
+            td= income.types 
+            td= income.category 
+            td= income.notes 
+
+  a(href="/prachy/mesic/${_id}"/vydaj)
+    input(type="submit",name="add_expense",value="Přidat výdaj")
+  td= expense.sumIncomes
+
+  a(href="/prachy/mesic/${_id}/prijem")
+    input(type="submit",name="add_income",value="Přidat příjem")
+
+
+  .form
+    form(action="/prachy/tydny/${_id}",method="post")
+      table.table
+        thead
+          tr
+            td Id
+            td Den
+            td Částka
+            td Typ
+            td Kategorie
+            td Poznámky
+        each expense in expenses
+          tr
+            td
+              a(href="/prachy/month/" + month._id)= month._id
+            td= expense.day
+            td= expense.amount 
+            td= expense.types 
+            td= expense.category 
+            td= expense.notes 
+
+  a(href="/prachy/mesic/${_id}"/vydaj)
+    input(type="submit",name="add_expense",value="Přidat výdaj")
+
+  td= expense.sumExpenses 
