@@ -8,3 +8,37 @@
   border: 1px solid black;
   padding: 5px;
 }
+
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.button-box {
+    padding-top: 1em;
+    padding-left: 6em;
+}
+
+.button-row {
+    padding-right: 3em;
+    float: left;
+}
+
+label {
+    display: inline-block;
+    width: 10em;
+    padding-right: 1em;
+    text-align: right;
+    padding-top: 0.25em;
+}
+
+.form-field {
+
+}
+
+.form-field-error {
+    background-color: #ff7777;
+}
+

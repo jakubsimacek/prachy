@@ -42,11 +42,27 @@ let db_uri = 'mongodb://localhost/prachy';
 
 // Connect mongoose
 mongoose.Promise = global.Promise;
+/*
+old way with DeprecationWarning: `open()` is deprecated in mongoose >= 4.11.0, use `openUri()` instead
 mongoose.connect(db_uri, function(err) {
   if (err) {
     console.log('Could not connect to mongodb on localhost. Ensure that you have mongodb running on localhost and mongodb accepts connections on standard ports!');
   }
-});
+});*/
+// START of new way - resolves: DeprecationWarning: `open()` is deprecated in mongoose >= 4.11.0, use `openUri()` instead
+mongoose.connect(db_uri, {
+  useMongoClient: true,
+  promiseLibrary: global.Promise
+})
+
+const db = mongoose.connection
+ 
+db.on('error', console.error.bind(console, 'connection error:'))
+
+db.once('open', () => {
+  console.log('DB is now open')
+})
+// END of new way
 
 // Register routes
 app.use('/', require('./routes'));

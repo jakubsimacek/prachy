@@ -85,13 +85,23 @@ router.get('/prachy/mesic/:year/:month', ctrl.getEditMonth);
 //router.post('/prachy/mesic/:year/:month', ctrl.valPostEditMonth, ctrl.postEditMonth);
 router.post('/prachy/mesic/:year/:month', ctrl.postEditMonth);
 
+// add expense to month
+router.get('/prachy/mesic/:year/:month/vydaj', ctrl.getAddExpense);
+//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddExpense, ctrl.postAddExpense);
+router.post('/prachy/mesic/:year/:month', ctrl.postAddExpense);
+
+// add income to month
+router.get('/prachy/mesic/:year/:month/prijem', ctrl.getAddIncome);
+//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddIncome, ctrl.postAddIncome);
+router.post('/prachy/mesic/:year/:month', ctrl.postAddIncome);
+
 
 // edit types
-router.get('/prachy/typy', ctrl.getType);
-router.post('/prachy/typ/:type', ctrl.valPostType, ctrl.postType);
-router.get('/prachy/typ/:type', ctrl.postType);
+router.get('/prachy/typy', ctrl.getListTypes);
 router.get('/prachy/typ/novy', ctrl.getCreateType);
-router.post('/prachy/typ/novy', ctrl.valPostCreateType, ctrl.postCreateType);
+router.post('/prachy/typ/novy', /*ctrl.valPostCreateType,*/ ctrl.postCreateType);
+router.get('/prachy/typ/:type/:action', ctrl.getEditType);
+router.post('/prachy/typ/:type/:action', /*ctrl.valPostEditType,*/ ctrl.postEditType);
 
 module.exports = router;
 

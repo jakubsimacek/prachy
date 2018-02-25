@@ -1,5 +1,6 @@
 const Month = require('../models/month');
 const Account = require('../models/account');
+const Type = require('../models/type');
 const util = require('../util');
 //const formatDate = require('format-date');
 //const CircularJSON = require('circular-json');
@@ -33,9 +34,10 @@ module.exports.getListMonths = function (req, res) {
     }
     return rendata
   }).then(rendata => {
-    res.render('listMonths', rendata);
+console.log(rendata)
+    res.render('listMonths', rendata)
   }).catch(err => {
-    util.renderr(res, 'Cannot load and render months', err);
+    util.renderr(res, 'Cannot load and render months', err)
   })
 }
 
@@ -90,14 +92,16 @@ module.exports.getEditMonth = function (req, res) {
   then(month => {
     const rendata = {
       title: 'Měsíc ' + _id,
+      _id: _id,
       sumExpenses: month.expenses.map(e => e.amount).reduce((a, b) => a + b, 0),
       sumIncomes: month.incomes.map(e => e.amount).reduce((a, b) => a + b, 0)
     }
     return rendata
   }).then(rendata => {
-    res.render('editMonths', rendata);
+console.log(rendata)
+    res.render('editMonth', rendata)
   }).catch(err => {
-    util.renderr(res, 'Cannot load and render months', err);
+    util.renderr(res, 'Cannot load and render a month', err)
   })
 }
 
@@ -110,204 +114,277 @@ module.exports.postEditMonth = function (req, res) {
 
 }
 
+// add expense to month
+//router.get('/prachy/mesic/:year/:month/vydaj', 
+module.exports.getAddExpense = function (req, res) {
+  const _year = req.params.year
+  const _month = req.params.month
+  const _id = _year + '/' + _month
+  Month.findOne({ _id: _id }).
+  exec().
+  then(month => {
+    const rendata = {
+      title: 'Přidat výdaj v měsíci ' + _id,
+      _id: _id
+      /*types: [
+      {
+        _id: "hbl.jidlo",
+        name: ""
+      }, 
+      {
+        _id: "hbl.vstupenky",
+        name: ""
+      }, 
+      {
+        _id: "hbl.obleceni",
+        name: ""
+      }, 
+      {
+        _id: "hbl.ostatni",
+        name: ""
+      }, 
+      {
+        _id: "potraviny",
+        name: ""
+      }, 
+      {
+        _id: "bydleni.najem",
+        name: ""
+      }, 
+      {
+        _id: "cestovani",
+        name: ""
+      }, 
+      {
+        _id: "",
+        name: ""
+      }, 
+      {
+        _id: "",
+        name: ""
+      }, 
+      {
+        _id: "",
+        name: ""
+      }, 
+
+    vyrovnani
+    auto
+      pojisteni
+      benzin
+      koupe
+      ] */
+    }
+    return rendata
+  }).then(rendata => {
+console.log(rendata)
+    res.render('editMonth', rendata)
+  }).catch(err => {
+    util.renderr(res, 'Cannot load and render page editMonth', err)
+  })
+}
+
+//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddExpense, ctrl.postAddExpense);
+//router.post('/prachy/mesic/:year/:month', 
+module.exports.postAddExpense = function (req, res) {
+
+}
+
+// add income to month
+//router.get('/prachy/mesic/:year/:month/prijem', 
+module.exports.getAddIncome = function (req, res) {
+
+}
+
+//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddIncome, ctrl.postAddIncome);
+//router.post('/prachy/mesic/:year/:month', 
+module.exports.postAddIncome = function (req, res) {
+
+}
+
+
+/////////////////////////////////////
+
+const entityConf = [
+  {
+    name: 'Type',
+    model: Type,
+    fields: [
+      {
+        name: '_id',
+        label: 'Id',
+        isEditable: true,
+        isUpdatable: false,
+        control: 'input',
+        input: {
+          type: 'text',
+        },
+        errorClass: '', // too early
+      }
+    ]
+  }
+]
+
+function getEntityConf(entityType) {
+  return entityConf.filter(ec => ec.name == entityType).map(ec => (ec == null) ? Promise.reject(`Entity type ${entityType} not found in the config!`) : Promise.resolve(ec))
+}
 
 // edit types
 //router.get('/prachy/typy', 
-module.exports.getType = function (req, res) {
-
+module.exports.getListTypes = function (req, res) {
+  Type.find({}).
+  //limit(24).
+  sort([[ 'type', 1 ], [ 'order', 1 ], [ '_id', 1 ]]).
+  exec().
+  then(types => {
+    const rendata = {
+      form: {
+        title: 'Typy',
+        isCreating: true,
+        isDeleting: false,
+        isUpdating: false,
+        isReadOnly: false,
+        submitButtonValue: 'Vytvořit',
+        backUrl: '/prachy/typy'
+      },
+      error: {},
+      types: types.map(function enrichType (t) {
+        return {
+          _id: t._id,
+          type: (t.type == 'Expense') ? 'Výdaj' : 'Příjem',
+          name: t.name,
+          order: (t.order) ? t.order : 1000,
+          notes: t.notes
+        }      
+      })
+    }
+    return rendata
+  }).then(rendata => {
+console.log(rendata)
+    res.render('listTypes', rendata)
+  }).catch(err => {
+    util.renderr(res, 'Cannot load and render page listTypes', err)
+  })
 }
 
 //router.post('/prachy/typ/:type', 
-module.exports.valPostType = function (req, res) {
+//module.exports.valPostListTypes = function (req, res) {
+//}
 
-}
-
-module.exports.postType = function (req, res) {
-
-}
+//module.exports.postListTypes = function (req, res) {
+//}
 
 //router.get('/prachy/typ/:type', 
-module.exports.valPostType = function (req, res) {
+//module.exports.valPostType = function (req, res) {
+//}
 
-}
-
-module.exports.postType = function (req, res) {
-
-}
+//module.exports.postType = function (req, res) {
+//}
 
 //router.get('/prachy/typ/novy', 
 module.exports.getCreateType = function (req, res) {
-
+  getEntityConf('Type').then(ec => {
+    const rendata = {
+      form: {
+        title: 'Nový typ',
+        isCreating: true,
+        isDeleting: false,
+        isUpdating: false,
+        isReadOnly: false,
+        submitButtonValue: 'Vytvořit',
+        backUrl: '/prachy/typy'
+      },
+      error: {},
+      types: {}
+    }
+  }).then(rendata => {
+    res.render('editType', rendata)
+  }).catch(function onCreateCatch (err) {
+    util.renderr(res, 'Cannot create a new type', err, newType);
+  })
 }
 
 //router.post('/prachy/typ/novy', 
-module.exports.valPostCreateType = function (req, res) {
-
-}
+//module.exports.valPostCreateType = function (req, res) {
+//}
 
 module.exports.postCreateType = function (req, res) {
-
+console.log('postCreateType called')
+    console.log(req.body)
+  //const errors = validationResult(req)
+  //if (!errors.isEmpty())
+    //return util.renderr(res, 'Validation errors', errors)
+  const _id = req.body.id
+  const _name = req.body.name
+  const _type = req.body.type
+  const _order = req.body.order
+  const _notes = req.body.notes
+  const newType = new Type({
+    _id: _id,
+    type: _type,
+    name: _name,
+    order: _order,
+    notes: _notes
+  })
+  newType.save().then(function onSaveThen (doc) {
+    res.redirect('/prachy/typy');
+  }).catch(function onSaveCatch (err) {
+    util.renderr(res, 'Cannot save a new type', err, newType);
+  })
 }
 
-/*
-//router.post('/prachy/mesic/novy', 
-module.exports.postCreateWeek = function (req, res) {
-  if (!req.body.weekStartDate)
-    res.render('error', {user: req.user, message: 'no start date', error: {}}); //TODO: return to add_week with an error message
-  else {
-    let newWeek = {
-      state: 'new',
-      startDate: req.body.weekStartDate,
-      endDate: 'n/a',
-      description: 'n/a',
-      weekDisplayProps: {
-        firstGap: 15,
-        intermGap: 47,
-        endGap: 20,
-        tableWidth: 1005,
-        ruler: [
-        {
-          "time" : "7:00",
-          "left" : 180,
-          "gap" : false
-        },
-        {
-          "time" : "8:00",
-          "left" : 360,
-          "gap" : true
-        },
-        {
-          "time" : "16:00",
-          "left" : 407,
-          "gap" : true
-        },
-        {
-          "time" : "17:00",
-          "left" : 587,
-          "gap" : false
-        },
-        {
-          "time" : "18:00",
-          "left" : 767,
-          "gap" : false
-        },
-        {
-          "time" : "19:00",
-          "left" : 947,
-          "gap" : false
-        }],
-        "intervals" : [
-        {
-          "from" : "6:20",
-          "to"   : "8:00"
-        },
-        {
-          "from" : "16:00",
-          "to"   : "19:00"
-        }]
+//router.get('/prachy/typ/:type/:action', 
+module.exports.getEditType = function (req, res) {
+console.log('getEditType called')
+  const _id = req.params.type
+  const _action = req.params.action
+  getEntityConf('Type').then(ec => {
+    Type.findOne({ _id: _id }).
+    exec()
+  }).then(entity => {
+    const rendata = {
+      form: {
+        title: 'Typ ' + _id,
+        isCreating: false,
+        isDeleting: _action == 'smazat',
+        isUpdating: _action == 'zmenit',
+        isReadOnly: _action == 'smazat',
+        action: _action,
+        submitButtonValue: _action,
+        backUrl: '/prachy/typy'
       },
-      days: [
-      {
-        day: 'po',
-        terms: {}
+      error: {},
+      type: { 
+        _id: entity._id,
+        name: entity.name,
+        type: entity.type,
+        order: entity.order,
+        notes: entity.notes
       },
-      {
-        day: 'ut',
-        terms: {}
-      },
-      {
-        day: 'st',
-        terms: {}
-      },
-      {
-        day: 'ct',
-        terms: {}
-      },
-      {
-        day: 'pa',
-        terms: {}
-      }]
-    };
-    Week.create(newWeek, (err, results) => {
-      if (err)
-        util.renderr(res, 'Cannot save a new week', err, newWeek);
-      else
-        res.redirect('/admin/tyden/' + req.body.weekStartDate);   // TODO: check the :week
-    });
-  }
-}
-*/
-/*
-//router.get('/admin/tyden/:week/editor', 
-module.exports.getWeekEditor = function (req, res) {
-  console.log(':week=' + CircularJSON.stringify(req.params.week));
-  Week.findById(req.params.week, (err, week) => {
-   if (err)
-     util.renderr(res, 'Nemuzu najit tyden', error);
-   else {
-     console.log('admin tyden ' + week);
-//router.post('/admin/tyden/:week/editor', 
-module.exports.postWeekEditor = function (req, res) {
-  // get submit button name
-  // switch what to do
-  // do it n times
-  res.render('not-impl', {user: req.user});
-}
-*/
-/*
-//router.get('/admin/tydny', 
-module.exports.getAdminWeeks = function (req, res) {
-  //console.log('admin-tydny', req.user);
-  Week.find({}, (err, weeks) => {
-    if (err)
-      render('error', { user: req.user, error: err });
-    else {
-console.log('weeks:' + weeks);
-      let aggWeeks = weeks.map(w => {
-        const noTerms = w.days.map(d => (d.terms) ? d.terms.length : 0).reduce(add, 0);
-        const noSections = w.weekDisplayProps.intervals.length;
-        const capacity = w.days.map(d => {
-          if (d.terms)
-            return d.terms.map(t => {
-              t.capacity.reduce(add, 0);
-            });
-          else
-            return 0;
-        }).reduce(add, 0); 
-        const noBookings = w.days.map(d => {
-          if (d.terms)
-            return d.terms.map(t => {
-              t.booked.count.reduce(add, 0);
-            });
-          else
-            return 0;
-        }).reduce(add, 0); 
-        const noReservations = w.days.map(d => {
-          if (d.terms)
-            return d.terms.map(t => {
-              t.reserved.count.reduce(add, 0);
-            });
-          else
-            return 0;
-        }).reduce(add, 0); 
-        console.log(noTerms);
-        return { id: w._id,
-                 name: w.name,
-                 startDate: formatCzDate(w.startDate),
-                 noTerms: noTerms,
-                 noSections: noSections,
-                 capacity: capacity,
-                 noBookings: noBookings,
-                 noReservations: noReservations,
-                 description: w.description,
-                 state: w.state
-        };
-      }); 
-      console.log('weeks to render: ', aggWeeks);
-      console.log('I\'m ' + req.user);
-      res.render('adminWeeks', {user: req.user, weeks: aggWeeks});
     }
-  });
+    return rendata
+  }).then(rendata => {
+    console.log(rendata)
+    res.render('editType', rendata)
+  }).catch(err => {
+    util.renderr(res, 'Cannot load and render a type', err)
+  })
 }
-*/
+
+//router.post('/prachy/typ/smazat', /*ctrl.valPostDeleteType,*/ 
+module.exports.postEditType = function (req, res) {
+console.log('postEditType called')
+    console.log(req.body)
+  //const errors = validationResult(req)
+  //if (!errors.isEmpty())
+    //return util.renderr(res, 'Validation errors', errors)
+  const _id = req.body.id
+  const _action = req.body.action
+  Type.findByIdAndRemove(_id).exec().then(function onDeleteThen (doc) {
+    res.redirect('/prachy/typy');
+  }).catch(function onSaveCatch (err) {
+    util.renderr(res, 'Cannot ' + _action +  ' a type ' + _id, err, newType);
+  })
+}
+
 
