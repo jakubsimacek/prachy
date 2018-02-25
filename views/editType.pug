@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  h2= form.title
+
+  .form
+    form(action="/prachy/typ/" + type._id + "/" + form.action,method="post")
+      .field
+        span Id
+        input(type="text",name="id",value=type._id,readonly=!form.isCreating,class=error._id)
+      .field
+        span Typ
+        select(name="type")
+          option(value="Expense",selected=type.isExpenseOn) Výdaj
+          option(value="Income",selected=type.isIncomeOn) Příjem
+      .field
+        span Název
+        input(type="text",name="name",value=type.name,readonly=form.isReadOnly,class=error.name)
+      .field
+        span #
+        input(type="text",name="order",value=type.order,readonly=form.isReadOnly,class=error.order)
+      .field
+        span Poznámky
+        input(type="text",name="notes",value=type.notes,readonly=form.isReadOnly,class=error.notes)
+      .clearfix.button-box
+        .button-row
+          input(type="reset",value="Znovu")
+        .button-row
+          input(type="button",value="Zpět",onClick="location.href=form.backUrl")
+        .button
+          input(type="submit",value=form.submitButtonValue)
+

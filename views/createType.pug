@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2= title
+
+  .form
+    form(action="/prachy/typ/novy",method="post")
+      .field
+        span Id
+        input(type="text",name="id")
+      .field
+        span Typ
+        select(name="type")
+          option(value="Expense") Výdaj
+          option(value="Income") Příjem
+      .field
+        span Název
+        input(type="text",name="name")
+      .field
+        span #
+        input(type="text",name="order")
+      .field
+        span Poznámky
+        input(type="text",name="notes")
+      .button
+        input(type="submit",name="create",value="Vytvořit")
+

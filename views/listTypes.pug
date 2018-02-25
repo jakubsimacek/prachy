@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  h2= title
+
+  a(href="/prachy/typ/novy")
+    input(type="submit",name="pridat_typ",value="Přidat typ")
+  a(href="/prachy/mesice")
+    input(type="submit",name="list_months",value="Editovat měsíce")
+
+  .form
+    form(action="/prachy/typy",method="post")
+      table.table
+        thead
+          tr
+            td Id
+            td Typ
+            td Název
+            td #
+            td Poznámky
+            td Smazat
+        each type in types
+          tr
+            td
+              a(href="/prachy/typ/" + type._id)= type._id
+            td= type.type
+            td= type.name
+            td= type.order 
+            td= type.notes 
+            td
+              a(href="/prachy/typ/" + type._id + "/smazat") X
+

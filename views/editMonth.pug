@@ -14,26 +14,27 @@ block content
             td Typ
             td Kategorie
             td Poznámky
-        each income in incomes
-          tr
-            td
-              a(href="/prachy/month/" + month._id)= month._id
-            td= income.day
-            td= income.amount 
-            td= income.types 
-            td= income.category 
-            td= income.notes 
+        if incomes
+          each income in incomes
+            tr
+              td
+                a(href="/prachy/month/" + month._id)= month._id
+              td= income.day
+              td= income.amount 
+              td= income.types 
+              td= income.category 
+              td= income.notes 
 
-  a(href="/prachy/mesic/${_id}"/vydaj)
-    input(type="submit",name="add_expense",value="Přidat výdaj")
-  td= expense.sumIncomes
+  .sum-box
+    .sum-header Suma výdajů
+    .sum-number= sumIncomes
 
-  a(href="/prachy/mesic/${_id}/prijem")
+  a(href="/prachy/mesic/" +_id + "/prijem")
     input(type="submit",name="add_income",value="Přidat příjem")
 
 
   .form
-    form(action="/prachy/tydny/${_id}",method="post")
+    form(action="/prachy/mesic/" + _id,method="post")
       table.table
         thead
           tr
@@ -43,17 +44,20 @@ block content
             td Typ
             td Kategorie
             td Poznámky
-        each expense in expenses
-          tr
-            td
-              a(href="/prachy/month/" + month._id)= month._id
-            td= expense.day
-            td= expense.amount 
-            td= expense.types 
-            td= expense.category 
-            td= expense.notes 
+        if expenses
+          each expense in expenses
+            tr
+              td
+                a(href="/prachy/month/" + month._id)= month._id
+              td= expense.day
+              td= expense.amount 
+              td= expense.types 
+              td= expense.category 
+              td= expense.notes 
 
-  a(href="/prachy/mesic/${_id}"/vydaj)
+  a(href="/prachy/mesic/" + _id + "/vydaj")
     input(type="submit",name="add_expense",value="Přidat výdaj")
 
-  td= expense.sumExpenses 
+  .sum-box
+    .sum-header Suma příjmů
+    .sum-number= sumExpenses 

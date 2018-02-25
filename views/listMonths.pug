@@ -4,7 +4,9 @@ block content
   h2= title
 
   a(href="/prachy/mesic/novy")
-    input(type="submit",name="pridat_mesic",value="Pridat")
+    input(type="submit",name="pridat_mesic",value="Přidat měsíc")
+  a(href="/prachy/typy")
+    input(type="submit",name="pridat_mesic",value="Editovat typy")
 
   .form
     form(action="/prachy/tydny",method="post")
@@ -19,7 +21,7 @@ block content
         each month in months
           tr
             td
-              a(href="/prachy/month/" + month._id)= month._id
+              a(href="/prachy/mesic/" + month._id)= month._id
             td= month.sumIncomes
             td= month.sumExpenses 
             td= month.state 
