@@ -98,10 +98,10 @@ router.post('/prachy/mesic/:year/:month', ctrl.postAddIncome);
 
 // edit types
 router.get('/prachy/typy', ctrl.getListTypes);
-router.get('/prachy/typ/novy', ctrl.getCreateType);
-router.post('/prachy/typ/novy', /*ctrl.valPostCreateType,*/ ctrl.postCreateType);
-router.get('/prachy/typ/:type/:action', ctrl.getEditType);
-router.post('/prachy/typ/:type/:action', /*ctrl.valPostEditType,*/ ctrl.postEditType);
+router.get('/prachy/:entita/novy', ctrl.getCreateEntity);
+router.post('/prachy/:entita/novy', ctrl.postCreateEntity);
+router.get('/prachy/:entita/:id/:akce', ctrl.getEditEntity);
+router.post('/prachy/:entita/:id/:akce', ctrl.postEditEntity);
 
 module.exports = router;
 

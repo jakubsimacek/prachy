@@ -18,6 +18,7 @@ block content
             td Název
             td #
             td Poznámky
+            td Upravit
             td Smazat
         each type in types
           tr
@@ -27,6 +28,8 @@ block content
             td= type.name
             td= type.order 
             td= type.notes 
+            td
+              a(href="/prachy/typ/" + type._id + "/upravit") U
             td
               a(href="/prachy/typ/" + type._id + "/smazat") X
 

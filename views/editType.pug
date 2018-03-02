@@ -4,7 +4,14 @@ block content
   h2= form.title
 
   .form
-    form(action="/prachy/typ/" + type._id + "/" + form.action,method="post")
+    actionUrl = null
+
+    if form.isCreating
+      actionUrl = "/prachy/typ/novy"
+    else 
+      actionUrl = "/prachy/typ/" + type._id + "/" + form.action
+
+    form(action=actionUrl,method="post")
       .field
         span Id
         input(type="text",name="id",value=type._id,readonly=!form.isCreating,class=error._id)

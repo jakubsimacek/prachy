@@ -1,18 +1,19 @@
-const Month = require('../models/month');
-const Account = require('../models/account');
-const Type = require('../models/type');
 const util = require('../util');
 //const formatDate = require('format-date');
 //const CircularJSON = require('circular-json');
 const { check, validationResult } = require('express-validator/check')
 const { matchedData, sanitize } = require('express-validator/filter')
+const compose = require('compose-function')
+const { curry } = require('curry-this')
+const cfg = require('../config')
+const _ = require('lodash/core')
 
 //if (!req.body.weekStartDate)
 
 // list months
 //router.get('/prachy/mesice', 
-module.exports.valGetListMonths = function (req, res) {
-}
+//module.exports.valGetListMonths = function (req, res) {
+//}
 
 module.exports.getListMonths = function (req, res) {
   Month.find({}).
@@ -106,9 +107,8 @@ console.log(rendata)
 }
 
 //router.post('/prachy/mesic/:year/:month', 
-module.exports.valPostEditMonth = function (req, res) {
-
-}
+//module.exports.valPostEditMonth = function (req, res) {
+//}
 
 module.exports.postEditMonth = function (req, res) {
 
@@ -126,54 +126,6 @@ module.exports.getAddExpense = function (req, res) {
     const rendata = {
       title: 'Přidat výdaj v měsíci ' + _id,
       _id: _id
-      /*types: [
-      {
-        _id: "hbl.jidlo",
-        name: ""
-      }, 
-      {
-        _id: "hbl.vstupenky",
-        name: ""
-      }, 
-      {
-        _id: "hbl.obleceni",
-        name: ""
-      }, 
-      {
-        _id: "hbl.ostatni",
-        name: ""
-      }, 
-      {
-        _id: "potraviny",
-        name: ""
-      }, 
-      {
-        _id: "bydleni.najem",
-        name: ""
-      }, 
-      {
-        _id: "cestovani",
-        name: ""
-      }, 
-      {
-        _id: "",
-        name: ""
-      }, 
-      {
-        _id: "",
-        name: ""
-      }, 
-      {
-        _id: "",
-        name: ""
-      }, 
-
-    vyrovnani
-    auto
-      pojisteni
-      benzin
-      koupe
-      ] */
     }
     return rendata
   }).then(rendata => {
@@ -204,29 +156,14 @@ module.exports.postAddIncome = function (req, res) {
 
 
 /////////////////////////////////////
-
-const entityConf = [
-  {
-    name: 'Type',
-    model: Type,
-    fields: [
-      {
-        name: '_id',
-        label: 'Id',
-        isEditable: true,
-        isUpdatable: false,
-        control: 'input',
-        input: {
-          type: 'text',
-        },
-        errorClass: '', // too early
-      }
-    ]
-  }
-]
-
 function getEntityConf(entityType) {
-  return entityConf.filter(ec => ec.name == entityType).map(ec => (ec == null) ? Promise.reject(`Entity type ${entityType} not found in the config!`) : Promise.resolve(ec))
+  const _cfg = cfg.entityConf.filter(ec => ec.name == entityType)
+  return (_cfg == null) ? Promise.reject(`Entity type ${entityType} not found in the config!`) : Promise.resolve(_cfg[0])
+}
+
+function getEntitaConf(entita) {
+  const _cfg = cfg.entityConf.filter(ec => ec.entita == entita)
+  return (_cfg == null) ? Promise.reject(`Entity type alias ${entita} not found in the config!`) : Promise.resolve(_cfg[0])
 }
 
 // edit types
@@ -260,7 +197,7 @@ module.exports.getListTypes = function (req, res) {
     }
     return rendata
   }).then(rendata => {
-console.log(rendata)
+//console.log(rendata)
     res.render('listTypes', rendata)
   }).catch(err => {
     util.renderr(res, 'Cannot load and render page listTypes', err)
@@ -281,10 +218,115 @@ console.log(rendata)
 //module.exports.postType = function (req, res) {
 //}
 
-//router.get('/prachy/typ/novy', 
-module.exports.getCreateType = function (req, res) {
-  getEntityConf('Type').then(ec => {
+
+const deepClone = (object) => JSON.parse(JSON.stringify(object))
+
+const addValuesToFields = (fields, document) => {
+  fields.forEach(i => { 
+    i.value = document[i.name]
+  })
+  return fields
+} 
+
+const prepareFields = (document) => compose(
+  curry.call(addValuesToFields)(document),
+  deepClone
+)
+
+function akceToAction(action) {
+  if (action == 'novy')
+    return 'create'
+  else if (action == 'upravit')
+    return 'update'
+  else if (action == 'smazat')
+    return 'delete'
+  else
+    throw new Error(`Action ${action} not recognized!`)
+}
+
+const isCreate = (action) => action == 'create'
+const isUpdate = (action) => action == 'update'
+const isDelete = (action) => action == 'delete'
+
+function actionNotRecognized(action) {
+    throw new Error(`Action ${action} not recognized!`)
+}
+
+// initialize model
+function initializeModel(action, schema, id) {
+  if (action == 'delete')
+    return schema.findOne({ id: id }).exec()
+  else if (action == 'create')
+    return Promise.resolve({})
+  else
+    actionNotRecognized(action)
+}
+
+// perform action
+function performAction(schema, action, id, document) {
+  if (action == 'delete' || action == 'update')
+    return schema.findByIdAndRemove(id).exec()
+  else if (action == 'update')
+    return schema.findByIdAndUpdate(id, document).exec()
+  else if (action == 'create')
+    return schema.create(document)
+  else
+    actionNotRecognized(action)
+}
+
+const createDocumentFromBody = (body, confFields) => {
+  const _doc = {}
+  confFields.forEach(cf => {
+    const _name = cf.name
+    const _value = body[_name]
+    const _toStore = (_value) ? _value : cf.defaultValue
+    if (_toStore)
+      _doc[_name] = _toStore
+  })
+  return _doc
+}
+
+const renderEditEntity = function (entita, akce, id) {
+  const _action = akceToAction(_akce)
+  let _ec = null
+  getEntitaConf(entita).then(ec => {
+    _ec = ec
+    return initializeModel(ec.action, ec.schema, id) 
+  }).then(model => {
+    return (model == null) ? Promise.reject(`Entity type ${entita} with id ${id} not found!`) : entity
+  }).then(model => {
     const rendata = {
+      fields: prepareFields(_ec.fields)(entity),
+      form: {
+        id: _id,
+        title: 'Typ ' + _id,
+        isCreating: isCreate(_action),
+        isDeleting: isDelete(_action),
+        isUpdating: isUpdate(_action),
+        isReadOnly: isDelete(_action),
+        action: _action,
+        akce: _akce,
+        submitButtonValue: _.startCase(_action),
+        backUrl: '/prachy/typy'
+      }
+    }
+    return rendata
+  }).then(rendata => {
+    console.log(rendata)
+    res.render('editEntity', rendata)
+  }).catch(err => {
+    util.renderr(res, 'Cannot load and render a type', err)
+  })
+}
+
+//router.get('/prachy/:entita/novy', 
+module.exports.getCreateEntity = function (req, res) {
+  renderEditEntity('create', req.params.entita, req.params.akce, req.params.id)
+  /*const _entita = req.params.entita //'Type'
+  getEntitaConf(_entita).then(ec => {
+//console.log(ec)
+    const rendata = {
+      fields: ec.fields,
       form: {
         title: 'Nový typ',
         isCreating: true,
@@ -297,24 +339,23 @@ module.exports.getCreateType = function (req, res) {
       error: {},
       types: {}
     }
+    return rendata
   }).then(rendata => {
-    res.render('editType', rendata)
+console.log(rendata)
+    res.render('editEntity', rendata)
   }).catch(function onCreateCatch (err) {
     util.renderr(res, 'Cannot create a new type', err, newType);
   })
+*/
 }
 
-//router.post('/prachy/typ/novy', 
-//module.exports.valPostCreateType = function (req, res) {
-//}
-
-module.exports.postCreateType = function (req, res) {
+module.exports.postCreateEntity = function (req, res) {
+  //const _entita = req.params.entita //'Type'
+  processEditEntity('create', req.params.entita, req.body)
+/*
 console.log('postCreateType called')
     console.log(req.body)
-  //const errors = validationResult(req)
-  //if (!errors.isEmpty())
-    //return util.renderr(res, 'Validation errors', errors)
-  const _id = req.body.id
+  const _id = req.body._id
   const _name = req.body.name
   const _type = req.body.type
   const _order = req.body.order
@@ -331,59 +372,74 @@ console.log('postCreateType called')
   }).catch(function onSaveCatch (err) {
     util.renderr(res, 'Cannot save a new type', err, newType);
   })
+*/
 }
 
-//router.get('/prachy/typ/:type/:action', 
-module.exports.getEditType = function (req, res) {
+//router.get('/prachy/:entita/:id/:akce', 
+module.exports.getEditEntity = function (req, res) {
+  renderEditEntity('create', req.params.entita, req.params.akce, req.params.id)
+/*
 console.log('getEditType called')
-  const _id = req.params.type
-  const _action = req.params.action
+  const _id = req.params.id
+  const _akce = req.params.akce
+  const _action = akceToAction(_akce)
+  const _entita = req.params.entita //'Type'
+  let _ec = null
   getEntityConf('Type').then(ec => {
-    Type.findOne({ _id: _id }).
-    exec()
+    _ec = ec
+    //return Type.findOne({ _id: _id }).exec()
+    return ec.schema.findOne({ _id: _id }).exec()
+  }).then(entity => {
+    return (entity == null) ? Promise.reject(`Entity type ${_entita} with id ${_id} not found!`) : entity
   }).then(entity => {
     const rendata = {
+      fields: prepareFields(_ec.fields)(entity),
       form: {
+        id: _id,
         title: 'Typ ' + _id,
         isCreating: false,
-        isDeleting: _action == 'smazat',
-        isUpdating: _action == 'zmenit',
-        isReadOnly: _action == 'smazat',
+        isDeleting: isDelete(_action),
+        isUpdating: isUpdate(_action),
+        isReadOnly: isDelete(_action),
         action: _action,
+        akce: _akce,
         submitButtonValue: _action,
         backUrl: '/prachy/typy'
-      },
-      error: {},
-      type: { 
-        _id: entity._id,
-        name: entity.name,
-        type: entity.type,
-        order: entity.order,
-        notes: entity.notes
-      },
+      }
     }
     return rendata
   }).then(rendata => {
     console.log(rendata)
-    res.render('editType', rendata)
+    res.render('editEntity', rendata)
   }).catch(err => {
     util.renderr(res, 'Cannot load and render a type', err)
   })
+*/
 }
 
-//router.post('/prachy/typ/smazat', /*ctrl.valPostDeleteType,*/ 
-module.exports.postEditType = function (req, res) {
-console.log('postEditType called')
-    console.log(req.body)
+//router.post('/prachy/:entita/:id/:akce', /*ctrl.valPostDeleteType,*/ 
+module.exports.postEditEntity = function (req, res) {
+  const _id = req.params.id
+  const _akce = req.params.akce
+  const _action = akceToAction(_akce)
+  const _entita = req.params.entita //'Type'
+  console.log(`postEditTEntity called with ${_entita}, ${_id}, ${_akce}`)
+  //console.log(req.body)
   //const errors = validationResult(req)
   //if (!errors.isEmpty())
     //return util.renderr(res, 'Validation errors', errors)
-  const _id = req.body.id
-  const _action = req.body.action
-  Type.findByIdAndRemove(_id).exec().then(function onDeleteThen (doc) {
+  let _entityConf = null
+
+  getEntityConf('Type').then(ec => {
+    _entityConf = ec
+    return createDocumentFromBody(req.body, _entityConf.fields)
+  }).then(function doAction (document) {
+    return performAction(_entityConf.schema, _action, _id, document)
+//  Type.findByIdAndRemove(_id).exec().then(function onDeleteThen (doc) {
+  }).then(function redirect(whatever) {
     res.redirect('/prachy/typy');
   }).catch(function onSaveCatch (err) {
-    util.renderr(res, 'Cannot ' + _action +  ' a type ' + _id, err, newType);
+    util.renderr(res, 'Cannot ' + _action +  ' a type ' + _id, err);
   })
 }
 

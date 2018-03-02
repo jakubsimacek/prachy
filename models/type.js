@@ -13,29 +13,3 @@ let Type = new Schema(type);
 
 module.exports = mongoose.model('Type', Type);
 
-/*
-root
-  vydaje
-    hbl
-      jidlo
-      vstupenky
-      obleceni
-      ostatni
-    potraviny
-    bydleni
-      najem
-    cestovani
-    vyrovnani
-    auto
-      pojisteni
-      benzin
-      koupe
-
-  prijmy
-    osvc
-      dcos
-      hbl
-    splatky
-    pujcky
-    ostatni
-*/
