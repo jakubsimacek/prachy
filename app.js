@@ -9,7 +9,8 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-
+const init = require('./init')
+const conf = require('./config')
 var app = express();
 
 // view engine setup
@@ -61,6 +62,7 @@ db.on('error', console.error.bind(console, 'connection error:'))
 
 db.once('open', () => {
   console.log('DB is now open')
+  init.initializeSchemas(conf.appConfig)
 })
 // END of new way
 

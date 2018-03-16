@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h2= title
+
+  each head in headings
+    span= head.label
+    span= head.value
+    br
+
+  each but in buttons
+    a(href="${but.url}")
+      input(type="submit",name="${but.name}",value="${but.label}")
+
+  table.table
+    thead
+      tr
+        each col in columns
+          td= col.header
+    each rec in records
+      tr
+        each cell in rec.cells
+          td= cell.value
+

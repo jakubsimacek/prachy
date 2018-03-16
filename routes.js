@@ -1,8 +1,9 @@
 const passport = require('passport');
 const Account = require('./models/account');
 const router = require('express').Router();
+const ctrl = require('./ctrls/generalController');
 const ctrlAccount = require('./ctrls/account');
-const ctrl = require('./ctrls/month');
+const ctrlMonth = require('./ctrls/month');
 //const { check, validationResult } = require('express-validator/check')
 //const { matchedData, sanitize } = require('express-validator/filter')
 
@@ -72,36 +73,46 @@ router.get('/prachy/odhlaseni', function(req, res) {
   res.redirect('/prachy/prihlaseni');
 });
 
+
 // list months
-router.get('/prachy/mesice', ctrl.getListMonths);
+//router.get('/prachy/mesice', ctrlMonth.getListMonths);
 
 // add month
-router.get('/prachy/mesic/novy', ctrl.getCreateMonth);
-//router.post('/prachy/mesic/novy', ctrl.valPostCreateMonth, ctrl.postCreateMonth);
-router.post('/prachy/mesic/novy', ctrl.postCreateMonth);
+//router.get('/prachy/mesic/novy', ctrlMonth.getCreateMonth);
+//router.post('/prachy/mesic/novy', ctrlMonth.postCreateMonth);
 
 // edit month
-router.get('/prachy/mesic/:year/:month', ctrl.getEditMonth);
-//router.post('/prachy/mesic/:year/:month', ctrl.valPostEditMonth, ctrl.postEditMonth);
-router.post('/prachy/mesic/:year/:month', ctrl.postEditMonth);
+//router.get('/prachy/mesic/:year/:month', ctrlMonth.getEditMonth);
+//router.post('/prachy/mesic/:year/:month', ctrlMonth.postEditMonth);
 
 // add expense to month
-router.get('/prachy/mesic/:year/:month/vydaj', ctrl.getAddExpense);
-//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddExpense, ctrl.postAddExpense);
-router.post('/prachy/mesic/:year/:month', ctrl.postAddExpense);
+//router.get('/prachy/mesic/:year/:month/vydaj', ctrlMonth.getAddExpense);
+//router.post('/prachy/mesic/:year/:month', ctrlMonth.postAddExpense);
 
 // add income to month
-router.get('/prachy/mesic/:year/:month/prijem', ctrl.getAddIncome);
-//router.post('/prachy/mesic/:year/:month', ctrl.valPostAddIncome, ctrl.postAddIncome);
-router.post('/prachy/mesic/:year/:month', ctrl.postAddIncome);
+//router.get('/prachy/mesic/:year/:month/prijem', ctrl.getAddIncome);
+//router.post('/prachy/mesic/:year/:month', ctrl.postAddIncome);
+
+// general list
+// /:app/:entitas/:pohled
+
+// general edit
+// /:app/:entita/novy        // TODO: sluc s nasledujicim
+// /:app/:entita/:akce/:id   // TODO: zmen poradi
+
+// NOVY ZPUSOB
+// /:app/:entita/:akce/:id   // entita (plural/singular), akce (akce/pohled), id (volitelne)
+    
+router.get('/:app/:akce/:entita/:id?/:subentita?/:subid?/:subsubentita?/:subsubid?', ctrl.generalGetController)
+router.post('/:app/:akce/:entita/:id?/:subentita?/:subid?/:subsubentita?/:subsubid?', ctrl.generalPostController)
 
 
 // edit types
-router.get('/prachy/typy', ctrl.getListTypes);
-router.get('/prachy/:entita/novy', ctrl.getCreateEntity);
-router.post('/prachy/:entita/novy', ctrl.postCreateEntity);
-router.get('/prachy/:entita/:id/:akce', ctrl.getEditEntity);
-router.post('/prachy/:entita/:id/:akce', ctrl.postEditEntity);
+//router.get('/prachy/typy', ctrlMonth.getListTypes);
+//router.get('/prachy/:entita/novy', ctrlMonth.getCreateEntity);
+//router.post('/prachy/:entita/novy', ctrlMonth.postCreateEntity);
+//router.get('/prachy/:entita/:id/:akce', ctrlMonth.getEditEntity);
+//router.post('/prachy/:entita/:id/:akce', ctrlMonth.postEditEntity);
 
 module.exports = router;
 
