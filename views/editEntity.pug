@@ -5,13 +5,8 @@ block content
 
   .form
 
-    if form.isCreating
-      - var actionUrl = "/prachy/typ/novy"
-    else 
-      - var actionUrl = "/prachy/typ/" + form.id + "/" + form.akce
-
-    form(action=actionUrl,method="post")
-      each field in fields
+    form(action=form.submitUrl,method="post")
+      each field in record
         .field
           span= field.label
           case field.control

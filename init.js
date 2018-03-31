@@ -61,12 +61,13 @@ const processFields = function(entityList, fields) {
 const initializeSchemas = function (appConf) {
   const entityList = new Object()
   _.forEach(appConf, (app) => {
-    _.forEach(app.entities, (entity) => {
+    _.forEach(_.filter(app.entities, { persistence: 'Mongosee' }), (entity) => {
       const ent = processFields(entityList, entity.fields)
        storeEntity(entityList, entity.name, ent)
        console.log(`***** registering a new schema ${entity.name} *****`)
        //console.log(ent)
        entity.schema = mongoose.model(entity.name, new Schema(ent))
+//       console.log(entity.schema.schema)
     })
   })
   appConf.schemas = entityList
